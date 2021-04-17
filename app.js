@@ -4,7 +4,7 @@ function getPlot(id) {
         console.log(data)
 
         //map wash frequency
-        var wfreq = data.metadata.map(d =>d.wfreq)
+        var wfreq = data.metadata.map(d =>+d.wfreq)
         console.log(`Washing Frequency: ${wfreq}`)
 
         //filter for sample values
@@ -19,11 +19,11 @@ function getPlot(id) {
         var idValues = samples.otu_ids.slice(0,10).reverse();
 
         //format otu ids for plot
-        var OTUids = idValues.map(d=>"OTU" + d)
+        var OTUids = idValues.map(d=>"OTU " + d)
 
         console.log(`OTU IDS': ${OTUids}`)
 
-        //labels
+        //labels for bar chart
         var labels = samples.otu_labels.slice(0,10);
 
         console.log(`Sample Values: ${sampleValues}`)
@@ -56,7 +56,7 @@ function getPlot(id) {
         Plotly.newPlot("bar",[trace1],layout);
 
 
-        //create trace for bubble chart
+        //create trace for bubble plot
         var trace2 = {
             x: samples.otu_ids,
             y: samples.sample_values,
@@ -68,25 +68,27 @@ function getPlot(id) {
             text: samples.otu_labels
         };
 
-        //create layout for bubble chart
+        //create layout for bubble plot
         var layout = {
             xaxis: {title: "OTU ID"},
             height: 600,
             width: 1300
         };
 
-        //create bubble chart
+        //create bubble plot
         Plotly.newPlot("bubble",[trace2],layout);
 
-        //create trace for pie chart
+        console.log(wfreq)
+
+        //create trace for gauge chart (currently not working)
         var trace3 = [{
             domain: {x: [0,1], y: [0,1]},
-            value: parseFloat(wfreq),
-            title: {text: "Weekly Washing Frequency"},
-            type: 'indicator',
+            type: "indicator",
             mode: "gauge+number",
-            gauge: {axis: {
-                range: [null,9]},
+            value: wfreq,
+            title: {text: "Weekly Washing Frequency"},
+            gauge: {
+                axis: {range: [null,9], tickwidth: 0.5, tickcolor: "black"},
                 steps: [
                     {range: [0,2], color: "yellow"},
                     {range: [2,4], color: "cyan"},
@@ -94,15 +96,17 @@ function getPlot(id) {
                     {range: [6,8], color: "lime"},
                     {range: [8,9], color: "green"},
 
-                ]}
+                ],}
 
             }
 
         ];
 
+        //set layout for gauge chart
         var layout3 = {
         width: 700,
         height: 600,
+        margin: {t: 0, b: 0}
     };
     Plotly.newPlot("gauge",[trace3], layout3);
     });
@@ -126,16 +130,16 @@ function getInfo(id){
         demoInfo.html("");
 
         Object.entries(result).forEach((key) =>{
-            demoInfo.append("h5").text(key[0].toUpperCase() + ": " + key[1] + "\n");
+            demoInfo.append("h5").text(key[0] + ": " + key[1] + "\n");
         });
     });
     }
-
+//function for selectiong new option
 function newOption(id){
     getPlot(id);
     getInfo(id);
 }
-
+//function for grabbing dataset 
 function init() {
     var dropdown = d3.select("#selDataset");
     d3.json("samples.json").then((data)=>{
@@ -145,8 +149,7 @@ function init() {
     data.names.forEach(function(name) {
         dropdown.append("option").text(name).property("value");
     });
-    //call the functions to display data and the plots to plot
-
+    //call functions to display data and plots
     getPlot(data.names[0]);
     getInfo(data.names[0]);
     });
