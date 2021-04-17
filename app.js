@@ -104,8 +104,8 @@ function getPlot(id) {
 
         //set layout for gauge chart
         var layout3 = {
-        width: 700,
-        height: 600,
+        width: 500,
+        height: 400,
         margin: {t: 0, b: 0}
     };
     Plotly.newPlot("gauge",[trace3], layout3);
